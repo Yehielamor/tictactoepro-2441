@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToePro - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --sidebar-bg: #1f2937;
+            --sidebar-text: #f9fafb;
+            --sidebar-hover: #374151;
+            --card-bg: #ffffff;
+            --body-bg: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 24px 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 0 24px 32px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo-icon {
+            background-color: var(--primary-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-links li {
+            margin-bottom: 4px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .nav-links a.active {
+            background-color: var(--primary-color);
+            border-right: 4px solid var(--primary-light);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-footer {
+            padding: 24px;
+            border-top: 1px solid var(--sidebar-hover);
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--card-bg);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .upgrade-badge {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .upgrade-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        .notifications {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger);
+            border-radius: 50%;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 32px;
+            flex-grow: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .icon-wins {
+            background-color: var(--success);
+        }
+
+        .icon-rank {
+            background-color: var(--primary-color);
+        }
+
+        .icon-streak {
+            background-color: var(--warning);
+        }
+
+        .icon-time {
+            background-color: var(--danger);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 32px;
+        }
+
+        .chart-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Activity Feed */
+        .activity-section {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .activity-section h2 {
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .icon-game {
+            background-color: var(--primary-color);
+        }
+
+        .icon-trophy {
+            background-color: var(--warning);
+        }
+
+        .icon-theme {
+            background-color: var(--success);
+        }
+
+        .icon-friend {
+            background-color: var(--danger);
+        }
+
+        .activity-details h4 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .activity-details p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">T</div>
+            TicTacToePro
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active"><span class="nav-icon">📊</span> Dashboard</a></li>
+            <li><a href="#"><span class="nav-icon">🎮</span> Multiplayer</a></li>
+            <li><a href="#"><span class="nav-icon">🏆</span> Leaderboards</a></li>
+            <li><a href="#"><span class="nav-icon">📈</span> Analytics</a></li>
+            <li><a href="#"><span class="nav-icon">⚙️</span> Settings</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            © 2023 TicTacToePro<br>
+            All rights reserved
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Welcome back, Alex!</h1>
+                <p>Your Tic-Tac-Toe performance dashboard and activity</p>
+            </div>
+            <div class="header-right">
+                <div class="upgrade-badge">Upgrade to Pro</div>
+                <div class="notifications">
+                    🔔
+                    <div class="notification-dot"></div>
+                </div>
+                <div class="user-avatar">AJ</div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">247</div>
+                            <div class="stat-label">Total Wins</div>
+                        </div>
+                        <div class="stat-icon icon-wins">🏆</div>
+                    </div>
+                    <div class="stat-change positive">+12 this week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">#42</div>
+                            <div class="stat-label">Global Rank</div>
+                        </div>
+                        <div class="stat-icon icon-rank">📊</div>
+                    </div>
+                    <div class="stat-change positive">↑ 8 positions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">Win Streak</div>
+                        </div>
+                        <div class="stat-icon icon-streak">🔥</div>
+                    </div>
+                    <div class="stat-change positive">Personal best!</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">3.2s</div>
+                            <div class="stat-label">Avg. Move Time</div>
+                        </div>
+                        <div class="stat-icon icon-time">⏱️</div>
+                    </div>
+                    <div class="stat-change negative">-0.4s from last week</div>
+                </div>
+            </div>
+
+            <!-- Main Layout: Chart + Activity -->
+            <div class="main-layout">
+                <!-- Chart Section -->
+                <section class="chart-section">
+                    <h2>Win Rate Trend (Last 30 Days)</h2>
+                    <div class="chart-container">
+                        <canvas id="winRateChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Activity Feed -->
+                <section class="activity-section">
+                    <h2>Recent Activity</h2>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-icon icon-game">🎮</div>
+                            <div class="activity-details">
+                                <h4>Won against "ChessMaster99"</h4>
+                                <p>Victory in 5 moves with X</p>
+                                <div class="activity-time">10 minutes ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon icon-trophy">🏆</div>
+                            <div class="activity-details">
+                                <h4>Reached Diamond Tier</h4>
+                                <p>Climbed 3 ranks this week</p>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon icon-theme">🎨</div>
+                            <div class="activity-details">
+                                <h4>Unlocked "Neon Glow" theme</h4>
+                                <p>New board customization</p>
+                                <div class="activity-time">Yesterday</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon icon-friend">👤</div>
+                            <div class="activity-details">
+                                <h4>Added "TicTacPro" as friend</h4>
+                                <p>Now you can play together</p>
+                                <div class="activity-time">2 days ago</div>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check for auth token
+        if (!localStorage.getItem('authToken')) {
+            window.location.href = 'auth.html';
+        }
+
+        // Mock data for Chart.js
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('winRateChart').getContext('2d');
+            
+            // Mock win rate data for last 30 days
+            const winRateChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+                    datasets: [{
+                        label: 'Win Rate %',
+                        data: [62, 65, 58, 70, 68, 72, 75],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 50,
+                            max: 80,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Mock interactive elements
+            document.querySelector('.upgrade-badge').addEventListener('click', function() {
+                alert('Redirecting to Pro upgrade page...');
+            });
+
+            document.querySelector('.notifications').addEventListener('click', function() {
+                alert('You have 3 unread notifications:\n1. New challenge from "XpertPlayer"\n2. Weekly ranking updated\n3. Friend request accepted');
+            });
+
+            document.querySelector('.user-avatar').addEventListener('click', function() {
+                alert('Opening user profile settings...');
+            });
+
+            // Add active state to nav links
+            const navLinks = document.querySelectorAll('.nav-links a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Mock page change
+                    const pageName = this.textContent.trim().split(' ')[1] || 'Dashboard';
+                    document.querySelector('.header-left h1').textContent = `${pageName} - TicTacToePro`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
